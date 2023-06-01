@@ -1,4 +1,4 @@
-module github.com/pavarov/otus_hw/tree/hw01_hello_otus/hw01_hello_otus
+module github.com/pavarov/otus_hw/hw01_hello_otus
 
 go 1.20
 

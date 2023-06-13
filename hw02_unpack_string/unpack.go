@@ -9,89 +9,105 @@ import (
 
 var ErrInvalidString = errors.New("invalid string")
 
-func Unpack(s string) (string, error) {
-	var result strings.Builder
-
+func unpackInitState(s string) ([]rune, int, strings.Builder) {
 	runes := []rune(s)
 	runesLength := len(runes)
+	var result strings.Builder
+	return runes, runesLength, result
+}
 
+func unpackValidator(runesLength int, runes []rune) (bool, error) {
 	if runesLength == 0 {
-		return "", nil
+		return true, nil
 	}
-
 	if unicode.IsDigit(runes[0]) {
-		return "", ErrInvalidString
+		return true, ErrInvalidString
+	}
+	return false, nil
+}
+
+func initIterationState(runes []rune, idx int) (rune, int, int, bool) {
+	currentRune := runes[idx]
+	nextIdx := idx + 1
+	idxAfterNext := nextIdx + 1
+	currentRuneIsSlash := string(currentRune) == "\\"
+	return currentRune, nextIdx, idxAfterNext, currentRuneIsSlash
+}
+
+func writeLetter(r rune, builder *strings.Builder) {
+	if unicode.IsLetter(r) {
+		builder.WriteRune(r)
+	}
+}
+
+func writeSeq(ch string, multStr string, builder *strings.Builder) {
+	mult, _ := strconv.Atoi(multStr)
+	builder.WriteString(strings.Repeat(ch, mult))
+}
+
+func isSlash(str string) bool {
+	return str == "\\"
+}
+
+func isDigit(r rune) bool {
+	return unicode.IsDigit(r)
+}
+
+func getUnpackedString(builder *strings.Builder, err error) (string, error) {
+	return builder.String(), err
+}
+
+func Unpack(s string) (string, error) {
+	runes, runesLength, result := unpackInitState(s)
+	invalidStr, err := unpackValidator(runesLength, runes)
+	if invalidStr {
+		return getUnpackedString(&result, err)
 	}
 
-	for i := 0; i < runesLength; i++ {
-		curr := runes[i]
-		esc := string(curr) == "\\"
-		nextIdx := i + 1
-		if nextIdx >= runesLength {
-			if unicode.IsLetter(curr) {
-				result.WriteRune(curr)
-				continue
-			}
-			continue
+	for idx := 0; idx < runesLength; idx++ {
+		currentRune, nextIdx, idxAfterNext, currIsSlash := initIterationState(runes, idx)
+		currStr := string(currentRune)
+		if nextIdx == runesLength {
+			writeLetter(currentRune, &result)
+			return getUnpackedString(&result, nil)
 		}
-		next := runes[nextIdx]
+		nextRune := runes[nextIdx]
 
-		if unicode.IsDigit(next) && unicode.IsDigit(curr) && !esc {
+		switch {
+		case isDigit(nextRune) && isDigit(currentRune) && !currIsSlash:
+		case isDigit(nextRune) && idxAfterNext <= runesLength-1 && isDigit(runes[idxAfterNext]) && !currIsSlash:
 			return "", ErrInvalidString
 		}
 
-		if unicode.IsDigit(next) {
-			if nextIdx+1 <= runesLength-1 && unicode.IsDigit(runes[nextIdx+1]) && !esc {
-				return "", ErrInvalidString
+		if isDigit(nextRune) {
+			switch {
+			case isSlash(currStr) && idxAfterNext < runesLength && isDigit(runes[idxAfterNext]): // \45
+				writeSeq(string(nextRune), string(runes[idxAfterNext]), &result)
+				idx += 2
+			case isSlash(currStr): // \5
+				result.WriteRune(nextRune)
+				idx++
+			default:
+				writeSeq(currStr, string(nextRune), &result)
+				idx++
 			}
-
-			currStr := string(curr)
-			if currStr == "\\" {
-				nnIdx := nextIdx + 1
-
-				if nnIdx < runesLength && unicode.IsDigit(runes[nnIdx]) {
-					mi, _ := strconv.ParseInt(string(runes[nnIdx]), 10, 0)
-					mult := int(mi)
-					result.WriteString(strings.Repeat(string(next), mult))
-					i += 2
-					continue
-				}
-
-				result.WriteRune(next)
-				i++
-				continue
-			}
-			nextInt, _ := strconv.ParseInt(string(next), 10, 0)
-			mult := int(nextInt)
-
-			result.WriteString(strings.Repeat(currStr, mult))
-			i++
 			continue
 		}
 
-		if string(curr) == "\\" && string(next) == "\\" {
-			nnIdx := nextIdx + 1
-
-			if nnIdx < runesLength {
-				if unicode.IsDigit(runes[nnIdx]) {
-					mi, _ := strconv.ParseInt(string(runes[nnIdx]), 10, 0)
-					mult := int(mi)
-					result.WriteString(strings.Repeat(string(next), mult))
-					i += 3
-					continue
-				} else if string(runes[nnIdx]) == "\\" {
-					result.WriteString("\\")
-					i++
-					continue
-				}
+		if isSlash(string(currentRune)) && isSlash(string(nextRune)) { // \\
+			switch {
+			case idxAfterNext < runesLength && isDigit(runes[idxAfterNext]): // \\3...
+				writeSeq(string(nextRune), string(runes[idxAfterNext]), &result)
+				idx += 3
+			case idxAfterNext < runesLength && isSlash(string(runes[idxAfterNext])): // \\\...
+				result.WriteString("\\")
+				idx++
+			default:
+				result.WriteString("\\")
 			}
-			result.WriteString("\\")
-		}
-
-		if unicode.IsLetter(curr) {
-			result.WriteRune(curr)
 			continue
 		}
+		writeLetter(currentRune, &result)
 	}
-	return result.String(), nil
+	return getUnpackedString(&result, nil)
 }

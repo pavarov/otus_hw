@@ -1,16 +1,12 @@
 package hw03frequencyanalysis
 
 import (
+	"regexp"
 	"sort"
 	"strings"
 )
 
-type wordCounter struct {
-	Word    string
-	Counter int
-}
-
-var sliceWordCounter []wordCounter
+var regx = regexp.MustCompile("[.,!']")
 
 func Top10(input string) []string {
 	arr := strings.Fields(input)
@@ -20,10 +16,20 @@ func Top10(input string) []string {
 		return nil
 	}
 
+	type wordCounter struct {
+		Word    string
+		Counter int
+	}
+	sliceWordCounter := make([]wordCounter, 0)
 	mapWordCounter := make(map[string]int)
 
 	for _, word := range arr {
-		mapWordCounter[word]++
+		cleanWord := regx.ReplaceAllString(word, "")
+		lowWord := strings.ToLower(cleanWord)
+		if lowWord == "-" {
+			continue
+		}
+		mapWordCounter[lowWord]++
 	}
 
 	for word, counter := range mapWordCounter {

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-var regx = regexp.MustCompile("[.,!']")
+var regx = regexp.MustCompile(`[^\p{L}\p{N} -]+`)
 
 func Top10(input string) []string {
 	arr := strings.Fields(input)

@@ -14,19 +14,16 @@ var sliceWordCounter []wordCounter
 
 func Top10(input string) []string {
 	arr := strings.Fields(input)
-	var result []string
+	result := make([]string, 0)
 
 	if len(arr) == 0 {
-		return result
+		return nil
 	}
-	var mapWordCounter = make(map[string]int)
+
+	mapWordCounter := make(map[string]int)
 
 	for _, word := range arr {
-		if _, ok := mapWordCounter[word]; ok {
-			mapWordCounter[word]++
-		} else {
-			mapWordCounter[word] = 1
-		}
+		mapWordCounter[word]++
 	}
 
 	for word, counter := range mapWordCounter {

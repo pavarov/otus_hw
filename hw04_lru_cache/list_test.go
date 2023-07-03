@@ -26,7 +26,7 @@ func TestList(t *testing.T) {
 		middle := l.Front().Next // 20
 		l.Remove(middle)         // [10, 30]
 		require.Equal(t, 2, l.Len())
-
+		//
 		for i, v := range [...]int{40, 50, 60, 70, 80} {
 			if i%2 == 0 {
 				l.PushFront(v)

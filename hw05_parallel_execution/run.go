@@ -20,9 +20,7 @@ func Run(tasks []Task, n, m int) error {
 	maxErrors := int32(m)
 	ch := producer(tasks)
 
-	// or replace into the consumer and wg.Add(1) ???
 	wg.Add(n)
-	// as for me not pretty pass by ref the counter, but how else (global)???
 	var errCounter int32
 	for i := 0; i < n; i++ {
 		go func() {
@@ -41,7 +39,6 @@ func Run(tasks []Task, n, m int) error {
 func producer(tasks []Task) chan Task {
 	ch := make(chan Task, len(tasks))
 
-	// maybe goroutine is unnecessary ???
 	go func() {
 		for _, task := range tasks {
 			ch <- task

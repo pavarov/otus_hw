@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"log"
+	"os"
 )
 
 var (
@@ -16,7 +18,30 @@ func init() {
 	flag.Int64Var(&offset, "offset", 0, "offset in input file")
 }
 
+func inputValidate() error {
+	if from == "" || to == "" {
+		return ErrUnsupportedFile
+	}
+	s, err := os.Stat(from)
+	if err != nil {
+		return err
+	}
+	fileSize := s.Size()
+	if fileSize == 0 {
+		return ErrFileWithUnknownSize
+	}
+	if offset > fileSize {
+		return ErrOffsetExceedsFileSize
+	}
+	return nil
+}
+
 func main() {
 	flag.Parse()
-	// Place your code here.
+	if err := inputValidate(); err != nil {
+		log.Fatal(err)
+	}
+	if errCopy := Copy(from, to, offset, limit); errCopy != nil {
+		log.Fatal(errCopy)
+	}
 }

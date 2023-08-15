@@ -13,14 +13,12 @@ var (
 	ErrFileWithUnknownSize   = errors.New("file with unknown size")
 )
 
-// Separately, because it can be taken out in a separate package (pkg dir). I think so:)
 func closeFileDesc(f *os.File) {
 	if errClose := f.Close(); errClose != nil {
 		log.Fatal(errClose)
 	}
 }
 
-// See the comment above
 func copyFile(out, f *os.File, limit int64) error {
 	if _, err := io.CopyN(out, f, limit); err != nil {
 		if errors.Is(err, io.EOF) {

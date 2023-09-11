@@ -1,0 +1,34 @@
+goos: linux
+goarch: amd64
+pkg: github.com/fixme_my_friend/hw10_program_optimization
+cpu: AMD Ryzen 7 5800H with Radeon Graphics         
+                │ bench_old.out │
+                │    sec/op     │
+GetDomainStat-8    2.591m ± ∞ ¹
+¹ need >= 6 samples for confidence interval at level 0.95
+
+                │ bench_old.out │
+                │     B/op      │
+GetDomainStat-8   70.09Ki ± ∞ ¹
+¹ need >= 6 samples for confidence interval at level 0.95
+
+                │ bench_old.out │
+                │   allocs/op   │
+GetDomainStat-8     695.0 ± ∞ ¹
+¹ need >= 6 samples for confidence interval at level 0.95
+
+pkg: github.com/pavarov/otus_hw/hw10_program_optimization
+                │ bench_new.out │
+                │    sec/op     │
+GetDomainStat-8    826.3n ± ∞ ¹
+¹ need >= 6 samples for confidence interval at level 0.95
+
+                │ bench_new.out │
+                │     B/op      │
+GetDomainStat-8   4.047Ki ± ∞ ¹
+¹ need >= 6 samples for confidence interval at level 0.95
+
+                │ bench_new.out │
+                │   allocs/op   │
+GetDomainStat-8     2.000 ± ∞ ¹
+¹ need >= 6 samples for confidence interval at level 0.95

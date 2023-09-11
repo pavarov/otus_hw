@@ -15,7 +15,7 @@ func BenchmarkGetDomainStat(b *testing.B) {
 	defer func(r *zip.ReadCloser) {
 		err := r.Close()
 		if err != nil {
-
+			panic(err)
 		}
 	}(r)
 

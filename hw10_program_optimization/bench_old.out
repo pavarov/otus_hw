@@ -1,0 +1,7 @@
+goos: linux
+goarch: amd64
+pkg: github.com/fixme_my_friend/hw10_program_optimization
+cpu: AMD Ryzen 7 5800H with Radeon Graphics         
+BenchmarkGetDomainStat-8   	    4568	   2590631 ns/op	   71777 B/op	     695 allocs/op
+PASS
+ok  	github.com/fixme_my_friend/hw10_program_optimization	22.297s

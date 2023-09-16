@@ -1,0 +1,7 @@
+goos: linux
+goarch: amd64
+pkg: github.com/pavarov/otus_hw/hw10_program_optimization
+cpu: AMD Ryzen 7 5800H with Radeon Graphics         
+BenchmarkGetDomainStat-8   	14249047	       826.3 ns/op	    4144 B/op	       2 allocs/op
+PASS
+ok  	github.com/pavarov/otus_hw/hw10_program_optimization	21.586s

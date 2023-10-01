@@ -1,14 +1,15 @@
 BIN := "./bin/calendar"
 DOCKER_IMG="calendar:develop"
+PACKAGE="github.com/pavarov/otus_hw/hw12_13_14_15_calendar/"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
-LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
+LDFLAGS := -X $(PACKAGE)cmd.release="develop" -X $(PACKAGE)cmd.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X $(PACKAGE)cmd.gitHash=$(GIT_HASH)
 
 build:
-	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
+	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./main.go
 
 run: build
-	$(BIN) -config ./configs/config.toml
+	$(BIN) --config .env
 
 build-img:
 	docker build \
@@ -21,6 +22,9 @@ run-img: build-img
 
 version: build
 	$(BIN) version
+
+server: build
+	$(BIN) httpServer
 
 test:
 	go test -race ./internal/... ./pkg/...

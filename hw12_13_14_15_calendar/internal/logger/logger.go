@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"context"
 	"os"
 	"strings"
 
@@ -84,5 +85,5 @@ func (l *SlogLogger) Error(msg string, args ...any) {
 }
 
 func (l *SlogLogger) Panic(msg string, args ...any) {
-	l.logger.Log(nil, LevelPanic, msg, args...)
+	l.logger.Log(context.TODO(), LevelPanic, msg, args...)
 }

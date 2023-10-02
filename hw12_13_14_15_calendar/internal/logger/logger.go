@@ -8,6 +8,12 @@ import (
 	"golang.org/x/exp/slog"
 )
 
+const LevelPanic = slog.Level(12)
+
+var LevelNames = map[slog.Level]string{
+	LevelPanic: "PANIC",
+}
+
 type Logger interface {
 	Debug(msg string, args ...any)
 	Info(msg string, args ...any)
@@ -34,6 +40,17 @@ func New(cfg config.LoggerConfig) Logger {
 
 	opts := &slog.HandlerOptions{
 		Level: loggerLevel,
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			if a.Key == slog.LevelKey {
+				level := a.Value.Any().(slog.Level)
+				levelLabel, exists := LevelNames[level]
+				if !exists {
+					levelLabel = level.String()
+				}
+				a.Value = slog.StringValue(levelLabel)
+			}
+			return a
+		},
 	}
 
 	var h slog.Handler
@@ -67,5 +84,5 @@ func (l *SlogLogger) Error(msg string, args ...any) {
 }
 
 func (l *SlogLogger) Panic(msg string, args ...any) {
-	l.logger.Error(msg, args...)
+	l.logger.Log(nil, LevelPanic, msg, args...)
 }

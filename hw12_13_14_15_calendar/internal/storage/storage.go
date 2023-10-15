@@ -2,14 +2,15 @@ package storage
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
 
-type StoreInterface interface {
-	Add(ctx context.Context, e Event) error
-	Update(ctx context.Context, e Event) error
+type Interface interface {
+	Add(ctx context.Context, e Event) (*Event, error)
+	Update(ctx context.Context, e Event) (*Event, error)
 	Delete(ctx context.Context, uuid uuid.UUID) error
-	List(ctx context.Context) ([]Event, error)
+	ListByInterval(ctx context.Context, from time.Time, to time.Time) ([]Event, error)
 	Find(ctx context.Context, uuid uuid.UUID) (*Event, error)
 }

@@ -14,22 +14,24 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/pavarov/otus_hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/pavarov/otus_hw/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/pavarov/otus_hw/hw12_13_14_15_calendar/internal/server/http"
+	grpc2 "github.com/pavarov/otus_hw/hw12_13_14_15_calendar/internal/server/grpc"
+	"github.com/pavarov/otus_hw/hw12_13_14_15_calendar/internal/server/http/eventhandler"
+	internalhttp "github.com/pavarov/otus_hw/hw12_13_14_15_calendar/internal/server/http/middlewares"
+	"github.com/pavarov/otus_hw/hw12_13_14_15_calendar/internal/services"
 	"github.com/pavarov/otus_hw/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/pavarov/otus_hw/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/pavarov/otus_hw/hw12_13_14_15_calendar/internal/storage/sql"
 	"github.com/pavarov/otus_hw/hw12_13_14_15_calendar/migrations"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"golang.org/x/exp/slog"
 )
 
-func httpServer(ctx context.Context) *cobra.Command {
+func server(ctx context.Context) *cobra.Command {
 	return &cobra.Command{
-		Use:   "httpServer",
-		Short: "http server calendar",
+		Use:   "server",
+		Short: "server calendar",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			err := httpServerRun(ctx)
+			err := serverRun(ctx)
 			if err != nil {
 				return err
 			}
@@ -38,7 +40,7 @@ func httpServer(ctx context.Context) *cobra.Command {
 	}
 }
 
-func httpServerRun(ctx context.Context) error {
+func serverRun(ctx context.Context) error {
 	appCtx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 
 	cfg := config.NewAppConfig()
@@ -48,7 +50,7 @@ func httpServerRun(ctx context.Context) error {
 
 	logg := logger.New(cfg.LoggerConfig)
 
-	var db storage.StoreInterface
+	var db storage.Interface
 	switch cfg.DBConfig.Type {
 	case "db":
 		sqlClient, err := sqlstorage.NewClient(cfg.DBConfig)
@@ -63,35 +65,47 @@ func httpServerRun(ctx context.Context) error {
 		db = memorystorage.New()
 	}
 
-	server := echo.New()
-	server.Use(internalhttp.LoggingMiddleware(logg))
-	server.HideBanner = true
-	server.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!")
-	})
+	service := services.NewEventService(db)
+	grpcServerService := grpc2.NewService(service)
+	GRPCServer := grpc2.NewServer(cfg.GrpcConfig, grpcServerService)
 
-	list, err := db.List(ctx)
-	if err != nil {
-		return err
-	}
-	fmt.Sprintln(list)
+	HTTPServer := echo.New()
+	HTTPServer.Use(internalhttp.LoggingMiddleware(logg))
+	HTTPServer.HideBanner = true
+
+	eventGroup := HTTPServer.Group("event")
+	eventHandler := eventhandler.New(service, logg)
+	eventGroup.GET("/list-by-date/:date", eventHandler.ListOnDate)
+	eventGroup.GET("/list-by-week/:date", eventHandler.ListOnWeek)
+	eventGroup.GET("/list-by-month/:date", eventHandler.ListOnMonth)
+	eventGroup.POST("", eventHandler.Create)
+	eventGroup.PUT("/:id", eventHandler.Update)
+	eventGroup.DELETE("/:id", eventHandler.Delete)
 
 	wg := sync.WaitGroup{}
-	wg.Add(1)
+	wg.Add(2)
 
 	go func() {
 		port := strconv.Itoa(cfg.ServerConfig.Port)
-		if err := server.Start(":" + port); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			slog.Error("failed to start server", "error", err)
+		if err := HTTPServer.Start(":" + port); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			logg.Panic("failed to start http server", "error", err)
 			cancel()
 		}
+		wg.Done()
+	}()
 
+	go func() {
+		if err := GRPCServer.Run(); err != nil {
+			logg.Panic("failed to start grpc server", "error", err)
+			cancel()
+		}
 		wg.Done()
 	}()
 
 	go func() {
 		<-appCtx.Done()
-		_ = server.Close()
+		_ = HTTPServer.Close()
+		_ = GRPCServer.Stop()
 	}()
 
 	wg.Wait()

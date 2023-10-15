@@ -3,25 +3,29 @@ package memorystorage
 import (
 	"context"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/pavarov/otus_hw/hw12_13_14_15_calendar/internal/storage"
 )
 
-type Store struct {
+type Storage struct {
 	events sync.Map
 }
 
-func New() storage.StoreInterface {
-	return &Store{}
+func New() storage.Interface {
+	return &Storage{}
 }
 
-func (s *Store) Add(_ context.Context, e storage.Event) error {
+func (s *Storage) Add(_ context.Context, e storage.Event) (*storage.Event, error) {
 	s.events.Store(e.ID, e)
-	return nil
+
+	ev, _ := s.events.Load(e.ID)
+	re := ev.(storage.Event)
+	return &re, nil
 }
 
-func (s *Store) Find(_ context.Context, uuid uuid.UUID) (*storage.Event, error) {
+func (s *Storage) Find(_ context.Context, uuid uuid.UUID) (*storage.Event, error) {
 	v, found := s.events.Load(uuid)
 	if !found {
 		return nil, storage.ErrEventNotFound
@@ -30,10 +34,10 @@ func (s *Store) Find(_ context.Context, uuid uuid.UUID) (*storage.Event, error) 
 	return &ev, nil
 }
 
-func (s *Store) Update(_ context.Context, e storage.Event) error {
+func (s *Storage) Update(_ context.Context, e storage.Event) (*storage.Event, error) {
 	oldEvVal, loaded := s.events.Load(e.ID)
 	if !loaded {
-		return storage.ErrEventNotFound
+		return nil, storage.ErrEventNotFound
 	}
 	oldEv := oldEvVal.(storage.Event)
 	e.ID = oldEv.ID
@@ -41,15 +45,15 @@ func (s *Store) Update(_ context.Context, e storage.Event) error {
 		s.events.Store(e.ID, e)
 	}
 
-	return nil
+	return &e, nil
 }
 
-func (s *Store) Delete(_ context.Context, uuid uuid.UUID) error {
+func (s *Storage) Delete(_ context.Context, uuid uuid.UUID) error {
 	s.events.Delete(uuid)
 	return nil
 }
 
-func (s *Store) List(_ context.Context) ([]storage.Event, error) {
+func (s *Storage) ListByInterval(_ context.Context, _ time.Time, _ time.Time) ([]storage.Event, error) {
 	l := make([]storage.Event, 0)
 	s.events.Range(func(key, value any) bool {
 		l = append(l, value.(storage.Event))

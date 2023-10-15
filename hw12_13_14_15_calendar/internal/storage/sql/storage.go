@@ -2,6 +2,7 @@ package sqlstorage
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/pavarov/otus_hw/hw12_13_14_15_calendar/internal/storage"
@@ -11,15 +12,16 @@ type Storage struct {
 	client ClientInterface
 }
 
-func New(client ClientInterface) *Storage {
+func New(client ClientInterface) storage.Interface {
 	return &Storage{client: client}
 }
 
-func (s *Storage) Add(ctx context.Context, e storage.Event) error {
+func (s *Storage) Add(ctx context.Context, e storage.Event) (*storage.Event, error) {
 	q := `INSERT INTO events (id, title, start, "end", description, user_id, notification_time)
 			VALUES (:id, :title, :start, :end, :description, :user_id, :notification_time);`
+	e.ID = uuid.New()
 	_, err := s.client.Connection().NamedExecContext(ctx, q, e)
-	return err
+	return &e, err
 }
 
 func (s *Storage) Find(ctx context.Context, uuid uuid.UUID) (*storage.Event, error) {
@@ -31,7 +33,7 @@ func (s *Storage) Find(ctx context.Context, uuid uuid.UUID) (*storage.Event, err
 	return &ev, nil
 }
 
-func (s *Storage) Update(ctx context.Context, e storage.Event) error {
+func (s *Storage) Update(ctx context.Context, e storage.Event) (*storage.Event, error) {
 	q := `UPDATE events 
 		SET title=:title,
 		    start=:start,
@@ -42,17 +44,17 @@ func (s *Storage) Update(ctx context.Context, e storage.Event) error {
 		    WHERE id=:id`
 	res, err := s.client.Connection().NamedExecContext(ctx, q, e)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	c, err := res.RowsAffected()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if c == 0 {
-		return storage.ErrUpdateNoAffectedRows
+		return nil, storage.ErrUpdateNoAffectedRows
 	}
-	return nil
+	return &e, nil
 }
 
 func (s *Storage) Delete(ctx context.Context, uuid uuid.UUID) error {
@@ -63,10 +65,10 @@ func (s *Storage) Delete(ctx context.Context, uuid uuid.UUID) error {
 	return nil
 }
 
-func (s *Storage) List(ctx context.Context) ([]storage.Event, error) {
-	q := "SELECT * FROM events"
+func (s *Storage) ListByInterval(ctx context.Context, from time.Time, to time.Time) ([]storage.Event, error) {
+	q := `SELECT * FROM events WHERE start::date >= $1::date AND "end"::date <= $2::date`
 	var events []storage.Event
-	if err := s.client.Connection().SelectContext(ctx, &events, q); err != nil {
+	if err := s.client.Connection().SelectContext(ctx, &events, q, from, to); err != nil {
 		return nil, err
 	}
 	return events, nil

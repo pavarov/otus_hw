@@ -21,13 +21,14 @@ func TestStorage(t *testing.T) {
 			End:              time.Time{},
 			Description:      "some description",
 			UserID:           uuid.New(),
-			NotificationTime: time.Time{},
+			NotificationTime: time.Duration(0),
 		}
-		emptyList, err := st.List(ctx)
+		emptyList, err := st.ListByInterval(ctx, time.Now(), time.Now())
 		assert.NoError(t, err)
 		assert.Equal(t, 0, len(emptyList))
 
-		assert.NoError(t, st.Add(ctx, ev))
+		_, e := st.Add(ctx, ev)
+		assert.NoError(t, e)
 
 		evFound, err := st.Find(ctx, ev.ID)
 		assert.NoError(t, err)
@@ -43,9 +44,10 @@ func TestStorage(t *testing.T) {
 			End:              time.Time{},
 			Description:      "some description",
 			UserID:           uuid.New(),
-			NotificationTime: time.Time{},
+			NotificationTime: time.Duration(0),
 		}
-		assert.NoError(t, st.Add(ctx, ev))
+		_, e := st.Add(ctx, ev)
+		assert.NoError(t, e)
 
 		evFound, err := st.Find(ctx, ev.ID)
 		assert.NoError(t, err)
@@ -61,9 +63,10 @@ func TestStorage(t *testing.T) {
 			End:              time.Time{},
 			Description:      "some description",
 			UserID:           uuid.New(),
-			NotificationTime: time.Time{},
+			NotificationTime: time.Duration(0),
 		}
-		assert.NoError(t, st.Add(ctx, ev))
+		_, e := st.Add(ctx, ev)
+		assert.NoError(t, e)
 
 		f, err := st.Find(ctx, ev.ID)
 		assert.NoError(t, err)
@@ -71,7 +74,9 @@ func TestStorage(t *testing.T) {
 
 		updTitle := "upd title"
 		ev.Title = updTitle
-		assert.NoError(t, st.Update(ctx, ev))
+
+		_, e = st.Update(ctx, ev)
+		assert.NoError(t, e)
 
 		evFound, err := st.Find(ctx, ev.ID)
 		assert.NoError(t, err)
@@ -87,7 +92,7 @@ func TestStorage(t *testing.T) {
 			End:              time.Time{},
 			Description:      "some description",
 			UserID:           uuid.New(),
-			NotificationTime: time.Time{},
+			NotificationTime: time.Duration(0),
 		}
 		ev1 := storage.Event{
 			ID:               uuid.New(),
@@ -96,7 +101,7 @@ func TestStorage(t *testing.T) {
 			End:              time.Time{},
 			Description:      "some description",
 			UserID:           uuid.New(),
-			NotificationTime: time.Time{},
+			NotificationTime: time.Duration(0),
 		}
 		ev2 := storage.Event{
 			ID:               uuid.New(),
@@ -105,17 +110,20 @@ func TestStorage(t *testing.T) {
 			End:              time.Time{},
 			Description:      "some description",
 			UserID:           uuid.New(),
-			NotificationTime: time.Time{},
+			NotificationTime: time.Duration(0),
 		}
-		emptyList, err := st.List(ctx)
+		emptyList, err := st.ListByInterval(ctx, time.Now(), time.Now())
 		assert.NoError(t, err)
 		assert.Equal(t, 0, len(emptyList))
 
-		assert.NoError(t, st.Add(ctx, ev))
-		assert.NoError(t, st.Add(ctx, ev1))
-		assert.NoError(t, st.Add(ctx, ev2))
+		_, e := st.Add(ctx, ev)
+		assert.NoError(t, e)
+		_, e = st.Add(ctx, ev1)
+		assert.NoError(t, e)
+		_, e = st.Add(ctx, ev2)
+		assert.NoError(t, e)
 
-		resList, err := st.List(ctx)
+		resList, err := st.ListByInterval(ctx, time.Now(), time.Now())
 		assert.NoError(t, err)
 		assert.Equal(t, 3, len(resList))
 	})
@@ -129,16 +137,17 @@ func TestStorage(t *testing.T) {
 			End:              time.Time{},
 			Description:      "some description",
 			UserID:           uuid.New(),
-			NotificationTime: time.Time{},
+			NotificationTime: time.Duration(0),
 		}
 
-		assert.NoError(t, st.Add(ctx, ev))
-		l, err := st.List(ctx)
+		_, e := st.Add(ctx, ev)
+		assert.NoError(t, e)
+		l, err := st.ListByInterval(ctx, time.Now(), time.Now())
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(l))
 
 		assert.NoError(t, st.Delete(ctx, ev.ID))
-		l, err = st.List(ctx)
+		l, err = st.ListByInterval(ctx, time.Now(), time.Now())
 		assert.NoError(t, err)
 		assert.Equal(t, 0, len(l))
 	})

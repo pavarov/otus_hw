@@ -15,6 +15,8 @@ type EventServiceInterface interface {
 	ListOnDate(ctx context.Context, dto dto.ListByIntervalDto) ([]storage.Event, error)
 	ListOnWeek(ctx context.Context, dto dto.ListByIntervalDto) ([]storage.Event, error)
 	ListOnMonth(ctx context.Context, dto dto.ListByIntervalDto) ([]storage.Event, error)
+	ListToNotify(ctx context.Context) ([]storage.Event, error)
+	RemoveOld(ctx context.Context, from time.Time) error
 }
 
 type EventService struct {
@@ -51,4 +53,12 @@ func (s EventService) ListOnWeek(ctx context.Context, dto dto.ListByIntervalDto)
 
 func (s EventService) ListOnMonth(ctx context.Context, dto dto.ListByIntervalDto) ([]storage.Event, error) {
 	return s.storage.ListByInterval(ctx, dto.Date, dto.Date.Add(time.Hour*24*30))
+}
+
+func (s EventService) ListToNotify(ctx context.Context) ([]storage.Event, error) {
+	return s.storage.ListToNotify(ctx)
+}
+
+func (s EventService) RemoveOld(ctx context.Context, from time.Time) error {
+	return s.storage.RemoveOld(ctx, from)
 }

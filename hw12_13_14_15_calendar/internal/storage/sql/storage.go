@@ -73,3 +73,27 @@ func (s *Storage) ListByInterval(ctx context.Context, from time.Time, to time.Ti
 	}
 	return events, nil
 }
+
+func (s *Storage) ListToNotify(ctx context.Context) ([]storage.Event, error) {
+	q := `SELECT id,
+			   title,
+			   start,
+			   "end",
+			   description,
+			   user_id,
+			   extract(epoch FROM notification_time)::int AS notification_time
+		   FROM events	WHERE start - notification_time <= $1`
+	var events []storage.Event
+	if err := s.client.Connection().SelectContext(ctx, &events, q, time.Now()); err != nil {
+		return nil, err
+	}
+	return events, nil
+}
+
+func (s *Storage) RemoveOld(ctx context.Context, from time.Time) error {
+	q := `DELETE FROM events WHERE "end" < $1`
+	if _, err := s.client.Connection().ExecContext(ctx, q, from); err != nil {
+		return err
+	}
+	return nil
+}

@@ -1,0 +1,158 @@
+{
+	"info": {
+		"_postman_id": "a4ffbff4-ab37-4baf-8454-27868857e8ed",
+		"name": "calendar",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30470358"
+	},
+	"item": [
+		{
+			"name": "http",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"title\",\n    \"start\": \"2022-06-01T15:04:05Z\",\n    \"end\": \"2022-06-01T15:04:05Z\",\n    \"description\": \"desc\",\n    \"user_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"notification_time\": \"2022-06-01T15:04:05Z\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/event",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"event"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"title UPD\",\n    \"start\": \"2022-06-01T15:04:05Z\",\n    \"end\": \"2022-06-01T15:04:05Z\",\n    \"description\": \"desc\",\n    \"user_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"notification_time\": \"2022-06-01T15:04:05Z\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/event/ac7c15fb-a4ff-4090-970d-2c1b5f6cc713",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"event",
+								"ac7c15fb-a4ff-4090-970d-2c1b5f6cc713"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "text"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/event/ac7c15fb-a4ff-4090-970d-2c1b5f6cc713",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"event",
+								"ac7c15fb-a4ff-4090-970d-2c1b5f6cc713"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list-by-date",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/event/list-by-date/2023-10-15",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"event",
+								"list-by-date",
+								"2023-10-15"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list-by-week",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/event/list-by-week/2023-10-15",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"event",
+								"list-by-week",
+								"2023-10-15"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list-by-month",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/event/list-by-month/2023-10-15",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"event",
+								"list-by-month",
+								"2023-10-15"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

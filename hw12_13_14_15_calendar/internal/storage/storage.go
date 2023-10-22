@@ -13,4 +13,6 @@ type Interface interface {
 	Delete(ctx context.Context, uuid uuid.UUID) error
 	ListByInterval(ctx context.Context, from time.Time, to time.Time) ([]Event, error)
 	Find(ctx context.Context, uuid uuid.UUID) (*Event, error)
+	ListToNotify(ctx context.Context) ([]Event, error)
+	RemoveOld(ctx context.Context, from time.Time) error
 }

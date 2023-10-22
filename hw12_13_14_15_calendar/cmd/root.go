@@ -40,6 +40,8 @@ func initConfig() {
 func Execute(ctx context.Context) {
 	rootCmd.AddCommand(version())
 	rootCmd.AddCommand(server(ctx))
+	rootCmd.AddCommand(schedulerCommand(ctx))
+	rootCmd.AddCommand(senderCommand(ctx))
 	if err := rootCmd.Execute(); err != nil {
 		slog.Error("failed to execute root command", "error:", err)
 		os.Exit(1)

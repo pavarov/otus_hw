@@ -61,3 +61,11 @@ func (s *Storage) ListByInterval(_ context.Context, _ time.Time, _ time.Time) ([
 	})
 	return l, nil
 }
+
+func (s *Storage) ListToNotify(_ context.Context) ([]storage.Event, error) {
+	panic("implement me")
+}
+
+func (s *Storage) RemoveOld(_ context.Context, _ time.Time) error {
+	panic("implement me")
+}

@@ -12,6 +12,8 @@
 
 **Домашнее задание не принимается, если не принято ДЗ, предшедствующее ему.**
 
+## Usage: ##
+
 ***Для запуска приложения необходимо:***
 
 - Создать .env файл из заготовки `cp .env.example .env`
@@ -19,3 +21,8 @@
 - Запустить контейнер(ы) `docker-compose up -d`
 
 - Запустить http сервер `make server`
+
+
+***Для POSTMAN (http, grpc запросы) лежит коллекция в корне директории:***
+
+[calendar.postman_collection.json](calendar.postman_collection.json)

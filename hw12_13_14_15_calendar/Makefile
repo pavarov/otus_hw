@@ -24,10 +24,10 @@ version: build
 	$(BIN) version
 
 server: build
-	$(BIN) httpServer
+	$(BIN) server
 
 test:
-	go test -race ./internal/...
+	~/sdk/go1.21.3/bin/go test -race ./internal/...
 
 install-lint-deps:
 	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.52.2

@@ -20,8 +20,11 @@
 
 - Запустить контейнер(ы) `docker-compose up -d`
 
-- Запустить http сервер `make server`
+- Запустить http/grpc сервер `make server`
 
+- Запустить calendar_scheduler `make calendar_scheduler`
+
+- Запустить calendar_sender `make calendar_sender`
 
 ***Для POSTMAN (http, grpc запросы) лежит коллекция в корне директории:***
 

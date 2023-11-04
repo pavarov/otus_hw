@@ -26,6 +26,12 @@ version: build
 server: build
 	$(BIN) server
 
+calendar_scheduler: build
+	$(BIN) calendar_scheduler
+
+calendar_sender: build
+	$(BIN) calendar_sender
+
 test:
 	go test -race ./internal/...
 

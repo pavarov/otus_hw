@@ -81,8 +81,8 @@ func (s *Storage) ListToNotify(ctx context.Context) ([]storage.Event, error) {
 			   "end",
 			   description,
 			   user_id,
-			   extract(epoch FROM notification_time)::int AS notification_time
-		   FROM events	WHERE start - notification_time <= $1`
+			   extract(epoch FROM (notification_time || ' ' || 'seconds')::interval)::int AS notification_time
+		   FROM events	WHERE start - (notification_time || ' ' || 'seconds')::interval <= $1`
 	var events []storage.Event
 	if err := s.client.Connection().SelectContext(ctx, &events, q, time.Now()); err != nil {
 		return nil, err

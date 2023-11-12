@@ -1,0 +1,28 @@
+version: '3.1'
+
+volumes:
+  pgdata:
+  rabbitdata:
+
+services:
+  db:
+    image: postgres:16-alpine3.18
+    restart: always
+    environment:
+      POSTGRES_HOST: ${DB_HOST}
+      POSTGRES_PORT: ${DB_PORT}
+      POSTGRES_DB: ${DB_DB}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  rabbit:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672" # GUI
+    volumes:
+      - rabbitdata:/var/lib/rabbitmq
+    restart: always

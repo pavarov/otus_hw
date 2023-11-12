@@ -11,3 +11,21 @@
 - `hw15_calendar` (от `hw14_calendar`) -> Merge Request в `hw14_calendar` (если уже вмержена, то в `master`)
 
 **Домашнее задание не принимается, если не принято ДЗ, предшедствующее ему.**
+
+## Usage: ##
+
+***Для запуска приложения необходимо:***
+
+- Создать .env файл из заготовки `cp .env.example .env`
+
+- Запустить контейнер(ы) `docker-compose up -d`
+
+- Запустить http/grpc сервер `make server`
+
+- Запустить calendar_scheduler `make calendar_scheduler`
+
+- Запустить calendar_sender `make calendar_sender`
+
+***Для POSTMAN (http, grpc запросы) лежит коллекция в корне директории:***
+
+[calendar.postman_collection.json](calendar.postman_collection.json)
